@@ -32,6 +32,67 @@ Goals
 -  Gracefully fall back to the existing runtime mechanism when the
    target OS cannot be determined.
 
+Ubuntu Release Requirements
+---------------------------
+
+``supported_os`` and ``unsupported_os`` accept OS classes as before, and
+``OsRequirement`` entries with optional Ubuntu release bounds:
+
+.. code-block:: python
+
+   from lisa import OsRequirement, simple_requirement
+   from lisa.operating_system import Oracle, Ubuntu
+
+   requirement = simple_requirement(
+       unsupported_os=[
+           OsRequirement(Ubuntu, max_version="22.04"),
+           Oracle,
+       ],
+   )
+
+This excludes Ubuntu releases older than 22.04 and every Oracle release.
+``min_version`` is inclusive and ``max_version`` is exclusive. For example,
+``OsRequirement(Ubuntu, min_version="22.04", max_version="24.04")`` matches
+Ubuntu releases from 22.04 up to, but not including, 24.04. In a supported
+list it allows that range; in an unsupported list it excludes that range.
+Entries in each list are alternatives. Both lists cannot be nonempty.
+
+Bounds must use ``YY.MM`` format. Comparison uses the Ubuntu major/minor
+release, so Ubuntu 22.04.5 belongs to the 22.04 release. Point releases,
+kernel versions and image publication versions are not supported bounds.
+Malformed bounds, empty/reversed ranges and bounds on a non-Ubuntu OS
+raise a configuration error. Class-only requirements retain their existing
+inheritance behavior; Ubuntu release numbers are never compared against
+Debian or another distro's release numbers.
+
+Version pre-filtering uses the existing ``enable_distro_pre_filtering``
+switch and is implemented only for Ubuntu. It recognizes:
+
+* Marketplace SKU releases such as ``16.04-LTS``, ``22_04-lts-gen2`` and
+  ``pro-fips-22_04-arm64``.
+* Marketplace offers such as ``ubuntu-24_04-lts`` and ``ubuntu-25_10``.
+* Ubuntu codenames xenial (16.04), bionic (18.04), focal (20.04), jammy
+  (22.04), noble (24.04), questing (25.10) and resolute (26.04).
+* Clearly identified Ubuntu release/codename tokens in gallery image
+  names and VHD filenames.
+
+Gen1/Gen2, ARM64, FIPS and CVM variants share the same release rules.
+Marketplace publication versions (the fourth field), gallery publication
+versions, URL query strings and kernel versions are not used as releases.
+The OS and release must come from the same image variable.
+
+Unknown or conflicting release hints retain the test for runtime checking;
+an unknown release must not turn a versioned exclusion into an exclusion of
+all Ubuntu versions. Non-Ubuntu targets keep the existing distro-only
+filtering, without version checks. Debug logs explain unrecognized or
+conflicting Ubuntu release hints and show the requirements of dropped cases.
+Both ``lisa run`` and ``lisa list`` use the same gated target resolution.
+As with distro-only filtering, ``list --all`` does not bypass the pre-filter.
+
+The actual connected Ubuntu guest's release is checked against the same
+requirements at runtime, even when pre-filtering is disabled. Existing
+runtime guards remain useful for conditions not expressed by this metadata.
+
 How It Works
 ------------
 
