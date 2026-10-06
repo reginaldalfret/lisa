@@ -101,7 +101,8 @@ class AzureKeyVaultExtensionBvt(TestSuite):
         requirement=simple_requirement(
             # This test is enabled for Ubuntu & CBLMariner.
             supported_os=[
-                OsRequirement(Ubuntu, min_version="20.04", max_version="22.10"),
+                OsRequirement(Ubuntu, min_version="22.10"),
+                OsRequirement(Ubuntu, max_version="20.04"),
                 CBLMariner,
             ],
             supported_features=[AzureExtension],
