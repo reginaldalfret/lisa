@@ -93,6 +93,14 @@ The actual connected Ubuntu guest's release is checked against the same
 requirements at runtime, even when pre-filtering is disabled. Existing
 runtime guards remain useful for conditions not expressed by this metadata.
 
+Examples of existing tests using these requirements include SGX and
+Secure/Measured Boot (Ubuntu 18.04 minimum), PTP time sync (Ubuntu 19.10
+minimum), and the Azure Security Pack and Performance Diagnostics
+extensions (discrete supported Ubuntu major versions). Major-version
+allowlists use January boundaries to preserve the whole supported release
+year, rather than restricting support to LTS releases. Architecture,
+generation and kernel-dependent guards remain runtime checks.
+
 How It Works
 ------------
 
